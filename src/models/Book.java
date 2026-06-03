@@ -10,6 +10,7 @@ public class Book {
     public int isbn;
     public String title;
     public String author;
+    public boolean isBorrowed;
 
     // Pointers for the Binary Search Tree
     public Book left;
@@ -25,6 +26,7 @@ public class Book {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
+        this.isBorrowed = false;
         this.left = null;
         this.right = null;
     }

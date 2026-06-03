@@ -1,0 +1,3 @@
+105560;Golden Kingdom;quit;BORROWED
+108454;Blood Knight;quit;BORROWED
+105560;Golden Kingdom;quit;RETURNED
