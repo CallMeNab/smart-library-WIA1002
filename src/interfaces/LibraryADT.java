@@ -40,4 +40,10 @@ public interface LibraryADT {
      * @param currentUser the user that borrow the book
      */
     void viewActiveCheckouts(models.User currentUser);
+
+    void searchBookByTitle(String title);
+
+    void searchBookByAuthor(String author);
+    
+    void viewCatalogue(java.util.Scanner sc);
 }

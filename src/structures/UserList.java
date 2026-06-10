@@ -1,11 +1,10 @@
 package structures;
 
-import models.Book;
-import models.User;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import models.Book;
+import models.User;
 /**
  * A custom Linked List acting as the global database of registered users.
  */
@@ -64,8 +63,10 @@ public class UserList {
             System.out.println("No users registered yet.");
             return;
         }
-
-        System.out.println("\n--- Registered Users ---");
+        System.out.println();
+        System.out.println("========================");
+        System.out.println("    Registered Users    ");
+        System.out.println("========================\n");
         UserNode current = head;
         while (current != null) {
             System.out.println("- " + current.user.name);

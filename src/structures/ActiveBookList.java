@@ -78,14 +78,16 @@ public class ActiveBookList {
             System.out.println("You currently have no active checkouts.");
             return;
         }
-
-        System.out.println("\n--- Your Active Checkouts ---");
+        
+        System.out.println("\n===================================");
+        System.out.println("       Your Active Checkouts       ");
+        System.out.println("===================================");
         ActiveBookNode current = head;
         while (current != null) {
             System.out.println("[ISBN: " + current.book.isbn + "] " + current.book.title);
             current = current.next;
         }
-        System.out.println("-----------------------------");
+        System.out.println("-----------------------------------");
     }
 
     /**

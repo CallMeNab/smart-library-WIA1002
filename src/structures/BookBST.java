@@ -1,10 +1,9 @@
 package structures;
 
-import models.Book;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import models.Book;
 
 /**
  * BST that acts as the library's main database catalogue.
@@ -81,9 +80,148 @@ public class BookBST {
         return searchRec(current.right, isbn);
     }
 
-    // ==========================================================
+// ==========================================================
+// EXTRA FUNCTIONALITIES: DISPLAY AND FLEXIBLE SEARCH
+// ==========================================================
+
+public void searchByTitle(String keyword) {
+    System.out.println("\n--- Search Results for Title: " + keyword + " ---");
+    boolean found = searchByTitleRec(root, keyword.toLowerCase());
+
+    if (!found) {
+        System.out.println("No books found with title containing: " + keyword);
+    }
+}
+
+private boolean searchByTitleRec(Book current, String keyword) {
+    if (current == null) {
+        return false;
+    }
+
+    boolean foundLeft = searchByTitleRec(current.left, keyword);
+
+    boolean foundCurrent = false;
+    if (current.title.toLowerCase().contains(keyword)) {
+        printBook(current);
+        foundCurrent = true;
+    }
+
+    boolean foundRight = searchByTitleRec(current.right, keyword);
+
+    return foundLeft || foundCurrent || foundRight;
+}
+
+public void searchByAuthor(String keyword) {
+    System.out.println("\n--- Search Results for Author: " + keyword + " ---");
+    boolean found = searchByAuthorRec(root, keyword.toLowerCase());
+
+    if (!found) {
+        System.out.println("No books found with author containing: " + keyword);
+    }
+}
+
+private boolean searchByAuthorRec(Book current, String keyword) {
+    if (current == null) {
+        return false;
+    }
+
+    boolean foundLeft = searchByAuthorRec(current.left, keyword);
+
+    boolean foundCurrent = false;
+    if (current.author.toLowerCase().contains(keyword)) {
+        printBook(current);
+        foundCurrent = true;
+    }
+
+    boolean foundRight = searchByAuthorRec(current.right, keyword);
+
+    return foundLeft || foundCurrent || foundRight;
+}
+
+public void displayCataloguePaginated(Scanner sc) {
+    if (root == null) {
+        System.out.println("No books in the catalogue.");
+        return;
+    }
+
+    final int PAGE_SIZE = 10;
+    int[] counter = {0};
+    int[] page = {1};
+
+    while (true) {
+        System.out.println("\n===== Catalogue Page " + page[0] + " =====");
+
+        int start = (page[0] - 1) * PAGE_SIZE;
+        int end = start + PAGE_SIZE;
+
+        counter[0] = 0;
+        int displayed = displayPageRec(root, start, end, counter);
+
+        if (displayed == 0) {
+            System.out.println("No more books on this page.");
+        }
+
+        System.out.println("\n1. Next Page");
+        System.out.println("2. Previous Page");
+        System.out.println("3. Back");
+        System.out.print("Enter choice: ");
+
+        try {
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            if (choice == 1) {
+                page[0]++;
+            } else if (choice == 2) {
+                if (page[0] > 1) {
+                    page[0]--;
+                } else {
+                    System.out.println("You are already on the first page.");
+                }
+            } else if (choice == 3) {
+                break;
+            } else {
+                System.out.println("Invalid option.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error: Please enter a valid number.");
+            sc.nextLine();
+        }
+    }
+}
+
+private int displayPageRec(Book current, int start, int end, int[] counter) {
+    if (current == null) {
+        return 0;
+    }
+
+    int displayed = 0;
+
+    displayed += displayPageRec(current.left, start, end, counter);
+
+    if (counter[0] >= start && counter[0] < end) {
+        printBook(current);
+        displayed++;
+    }
+
+    counter[0]++;
+
+    displayed += displayPageRec(current.right, start, end, counter);
+
+    return displayed;
+}
+
+private void printBook(Book b) {
+    System.out.println(
+        "ISBN: " + b.isbn +
+        " | Title: " + b.title +
+        " | Author: " + b.author +
+        " | Status: " + (b.isBorrowed ? "Borrowed" : "Available"));
+}
+
+    // =============================
     // DATABASE FILE I/O LOGIC
-    // ==========================================================
+    // =============================
 
     // Note: Put these imports at the very top of your file!
 

@@ -1,13 +1,13 @@
 package app;
 
 import interfaces.LibraryADT;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import models.Book;
+import models.User;
 import structures.BookBST;
 import structures.BorrowStack;
 import structures.UserList;
-import models.Book;
-import models.User;
-import java.util.Scanner;
-import java.util.InputMismatchException;
 /**
  * where everything happen.
  */
@@ -47,16 +47,35 @@ public class SmartLibrary implements LibraryADT {
     @Override
     public void searchBook(int isbn) {
         Book b = catalogue.search(isbn);
+
         if (b != null) {
-            System.out.println("\n--- Book Found ---");
-            System.out.println("ISBN:   " + b.isbn);
-            System.out.println("Title:  " + b.title);
-            System.out.println("Author: " + b.author);
-            System.out.println("Status: " + (b.isBorrowed ? "Currently Checked Out" : "Available on Shelf"));
-            System.out.println("------------------");
+            System.out.println();
+            printSmallLine();
+            System.out.println("BOOK FOUND");
+            printSmallLine();
+            System.out.println("ISBN   : " + b.isbn);
+            System.out.println("Title  : " + b.title);
+            System.out.println("Author : " + b.author);
+            System.out.println("Status : " + (b.isBorrowed ? "Currently Checked Out" : "Available on Shelf"));
+            printSmallLine();
         } else {
-            System.out.println("\nNot Found: No book matches ISBN " + isbn + ".");
+            System.out.println("\n[INFO] No book matches ISBN " + isbn + ".");
         }
+    }
+
+        @Override
+    public void searchBookByTitle(String title) {
+        catalogue.searchByTitle(title);
+    }
+
+    @Override
+    public void searchBookByAuthor(String author) {
+        catalogue.searchByAuthor(author);
+    }
+
+    @Override
+    public void viewCatalogue(Scanner sc) {
+        catalogue.displayCataloguePaginated(sc);
     }
 
     @Override
@@ -111,9 +130,9 @@ public class SmartLibrary implements LibraryADT {
 
     public void runMenu() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("=================================");
+        System.out.println("===============================");
         System.out.println(" Welcome to the Smart Library! ");
-        System.out.println("=================================");
+        System.out.println("===============================");
 
         while (true) {
             System.out.print("\nLOGIN - Enter your name (or type 'exit' to quit): ");
@@ -136,7 +155,6 @@ public class SmartLibrary implements LibraryADT {
                 runAdminMenu(sc);
             } else {
                 User currentUser = users.findOrCreateUser(name);
-                System.out.println("\nWelcome, " + currentUser.name + "!");
                 runStudentMenu(sc, currentUser);
             }
         }
@@ -146,11 +164,16 @@ public class SmartLibrary implements LibraryADT {
     // --- ADMIN MENU ---
     private void runAdminMenu(Scanner sc) {
         while (true) {
-            System.out.println("\n--- ADMIN DASHBOARD ---");
+            System.out.println();
+            printLine();
+            System.out.println("             ADMIN DASHBOARD ");
+            printLine();
+            System.out.println("Welcome admin !");
+            System.out.println();
             System.out.println("1. Add a New Book");
             System.out.println("2. View Global Borrowing History");
             System.out.println("3. View Registered Users");
-            System.out.println("4. Logout");
+            System.out.println("4. Logout\n");
 
             int choice = getValidInt(sc, "Enter choice (1-4): ");
 
@@ -183,37 +206,121 @@ public class SmartLibrary implements LibraryADT {
     // --- STUDENT MENU ---
     private void runStudentMenu(Scanner sc, User currentUser) {
         while (true) {
-            System.out.println("\n--- STUDENT MENU ---");
-            System.out.println("1. Search Catalogue");
-            System.out.println("2. Borrow a Book");
-            System.out.println("3. Return a Book");
-            System.out.println("4. View My Active Checkouts");
-            System.out.println("5. Logout");
+        System.out.println();
+        printLine();
+        System.out.println("              STUDENT MENU");
+        printLine();
+        System.out.println("Welcome, " + currentUser.name);
+        System.out.println();
+        System.out.println("1. Search Catalogue");
+        System.out.println("2. Borrow a Book");
+        System.out.println("3. Return a Book");
+        System.out.println("4. View My Active Checkouts");
+        System.out.println("5. View Catalogue");
+        System.out.println("6. Logout");
+        printLine();
 
-            int choice = getValidInt(sc, "Enter choice (1-5): ");
+            int choice = getValidInt(sc, "Enter choice (1-6): ");
 
-            if (choice == 5) {
+            if (choice == 6) {
                 System.out.println(currentUser.name + " logged out.");
                 break;
             }
 
             switch (choice) {
                 case 1:
-                    searchBook(getValidInt(sc, "Enter ISBN to search: "));
+                    runSearchMenu(sc);
                     break;
                 case 2:
                     borrowBook(getValidInt(sc, "Enter ISBN to borrow: "), currentUser);
+                    pause(sc);
                     break;
                 case 3:
-                    returnBook(getValidInt(sc, "Enter ISBN to return: "), currentUser);
+                    System.out.println("\nHere are your active checkouts:");
+                    viewActiveCheckouts(currentUser);
+                    returnBook(getValidInt(sc, "\nEnter ISBN to return: "), currentUser);
+                    pause(sc);
                     break;
                 case 4:
                     viewActiveCheckouts(currentUser);
+                    pause(sc);
+                    break;
+                case 5:
+                    viewCatalogue(sc);
                     break;
                 default:
                     System.out.println("Invalid option.");
             }
         }
+    }
+
+    private void runSearchMenu(Scanner sc) {
+        while (true) {
+        System.out.println();
+        printLine();
+        System.out.println("            SEARCH CATALOGUE");
+        printLine();
+        System.out.println("1. Search by ISBN");
+        System.out.println("2. Search by Title");
+        System.out.println("3. Search by Author");
+        System.out.println("4. Back");
+        printLine();
+
+        int choice = getValidInt(sc, "Enter choice (1-4): ");
+
+        switch (choice) {
+            case 1:
+                searchBook(getValidInt(sc, "Enter ISBN to search: "));
+                pause(sc);
+                break;
+
+            case 2:
+                System.out.print("Enter title keyword: ");
+                String title = sc.nextLine().trim();
+
+                if (title.isEmpty()) {
+                    System.out.println("[ERROR] Title keyword cannot be empty.");
+                } else {
+                    searchBookByTitle(title);
+                }
+
+                pause(sc);
+                break;
+
+            case 3:
+                System.out.print("Enter author keyword: ");
+                String author = sc.nextLine().trim();
+
+                if (author.isEmpty()) {
+                    System.out.println("[ERROR] Author keyword cannot be empty.");
+                } else {
+                    searchBookByAuthor(author);
+                }
+
+                pause(sc);
+                break;
+
+            case 4:
+                return;
+
+            default:
+                System.out.println("[ERROR] Invalid option.");
+                pause(sc);
+            }
+        }
+    }
+    
+    private void printLine() {
+    System.out.println("========================================");
+    }
+
+    private void printSmallLine() {
+        System.out.println("----------------------------------------");
+    }
+
+    private void pause(Scanner sc) {
+        System.out.print("\nPress Enter to continue...");
+        sc.nextLine();
     }
 
     /**
